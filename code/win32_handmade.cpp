@@ -13,7 +13,7 @@ typedef struct tagWNDCLASSA {
   LPCSTR    lpszMenuName;
   LPCSTR    lpszClassName;
 } WNDCLASSA, *PWNDCLASSA, *NPWNDCLASSA, *LPWNDCLASSA;
-
+// test
 */
 
 LRESULT CALLBACK
