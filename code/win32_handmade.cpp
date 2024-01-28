@@ -1,20 +1,10 @@
 #include <windows.h>
 
-/*
-typedef struct tagWNDCLASSA {
-  UINT      style;
-  WNDPROC   lpfnWndProc;
-  int       cbClsExtra;
-  int       cbWndExtra;
-  HINSTANCE hInstance;
-  HICON     hIcon;
-  HCURSOR   hCursor;
-  HBRUSH    hbrBackground;
-  LPCSTR    lpszMenuName;
-  LPCSTR    lpszClassName;
-} WNDCLASSA, *PWNDCLASSA, *NPWNDCLASSA, *LPWNDCLASSA;
-// test
-*/
+#define internal static
+#define local_persist static
+#define global_variable static
+
+global_variable bool Running;
 
 LRESULT CALLBACK
 MainWindowCallback(
@@ -32,20 +22,21 @@ MainWindowCallback(
 				OutputDebugStringA("WM_SIZE\n");
 			} break;
 
-		case WM_DESTROY:
-			{
-				OutputDebugStringA("WM_DESTROY\n");
-			} break;
-
 		case WM_CLOSE:
 			{
-				OutputDebugStringA("WM_CLOSE\n");
+				Running = false;
 			} break;
 
 		case WM_ACTIVATEAPP:
 			{
 				OutputDebugStringA("WM_ACTIVATEAPP\n");
 			} break;
+
+		case WM_DESTROY:
+			{
+				Running = false;
+			} break;
+
 		case WM_PAINT:
 			{
 				PAINTSTRUCT Paint;
@@ -94,7 +85,7 @@ WinMain(
 	if(RegisterClass(&WindowClass))
 	{ 
 		HWND WindowHandle = 
-			CreateWindowEx(
+			CreateWindowExA(
 				0,
 				WindowClass.lpszClassName,
 				"Handmade Hero",
@@ -109,7 +100,8 @@ WinMain(
 				0);
 		if(WindowHandle)
 		{
-			for(;;)
+			Running = true;
+			while(Running)
 			{
 				MSG Message;
 				BOOL MessageResult = GetMessage(&Message, 0, 0, 0);
