@@ -5,9 +5,56 @@
 #define global_variable static
 
 global_variable bool Running;
+global_variable BITMAPINFO BitmapInfo;
+global_variable void *BitmapMemory;
+global_variable HBITMAP BitmapHandle; 
+global_variable HDC BitmapDeviceContext; 
+
+internal void 
+Win32ResizeDIBSection(int Width, int Height) 
+{
+
+	if(BitmapHandle)
+	{
+		DeleteObject(BitmapHandle);
+	}
+	if(!BitmapDeviceContext)
+	{
+		BitmapDeviceContext = CreateCompatibleDC(0);
+	}
+
+	BITMAPINFO BitmapInfo;
+	BitmapInfo.bmiHeader.biSize = sizeof(BitmapInfo.bmiHeader);
+	BitmapInfo.bmiHeader.biWidth = Width;
+	BitmapInfo.bmiHeader.biHeight = Height;
+	BitmapInfo.bmiHeader.biPlanes = 1;
+	BitmapInfo.bmiHeader.biBitCount = 32;
+	BitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+	BitmapHandle = CreateDIBSection(
+		BitmapDeviceContext,
+		&BitmapInfo,
+		DIB_RGB_COLORS, &BitmapMemory, 0, 0
+	);
+}
+
+internal void 
+Win32UpdateWindow(HDC DeviceContext, int X, int Y, int Width, int Height)
+{
+	StretchDIBits(
+		DeviceContext,
+		X, Y, Width, Height,
+		X, Y, Width, Height, 
+		BitmapMemory,
+		&BitmapInfo,
+		DIB_RGB_COLORS,
+		SRCCOPY
+	);
+}
+
 
 LRESULT CALLBACK
-MainWindowCallback(
+Win32MainWindowCallback(
   HWND Window,
   UINT Message,
   WPARAM WParam,
@@ -19,7 +66,11 @@ MainWindowCallback(
 	{
 		case WM_SIZE:
 			{
-				OutputDebugStringA("WM_SIZE\n");
+				RECT ClientRect;
+				GetClientRect(Window, &ClientRect);
+				int Height = ClientRect.bottom - ClientRect.top;
+				int Width = ClientRect.right - ClientRect.left;
+				Win32ResizeDIBSection(Width, Height);
 			} break;
 
 		case WM_CLOSE:
@@ -46,8 +97,8 @@ MainWindowCallback(
 				int Y = Paint.rcPaint.top;
 				int Height = Paint.rcPaint.bottom - Paint.rcPaint.top;
 				int Width = Paint.rcPaint.right - Paint.rcPaint.left;
-				PatBlt(DeviceContext, X, Y, Width, Height, WHITENESS);	
 
+				Win32UpdateWindow(DeviceContext, X, Y, Width, Height);
 
 				EndPaint(Window, &Paint);
 			} break;
@@ -77,7 +128,7 @@ WinMain(
 
 	// todo => check if hredraw/vredraw still matter
 	WindowClass.style = CS_OWNDC|CS_HREDRAW|CS_VREDRAW;
-	WindowClass.lpfnWndProc = MainWindowCallback;
+	WindowClass.lpfnWndProc = Win32MainWindowCallback;
 	WindowClass.hInstance = Instance;
     WindowClass.lpszClassName = "Handmade Hero Window Class";	
 
