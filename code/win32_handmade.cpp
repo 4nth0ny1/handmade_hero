@@ -55,13 +55,13 @@ Win32ResizeDIBSection(int Width, int Height)
 
 			/*
 				Pixel in memory = BB GG RR xx
-				LITTLE ENDIAN ARCHITECTURE
+				LITTLE ENDIAN ARCHITECTURE -> RGB in reverse
 			*/
-			*Pixel = 0;
+			*Pixel = (uint8)X;
+			++Pixel;
+			*Pixel = (uint8)Y;
 			++Pixel;
 			*Pixel = 0;
-			++Pixel;
-			*Pixel = 255;
 			++Pixel;
 			*Pixel = 0;
 			++Pixel;
