@@ -104,8 +104,8 @@ Win32DisplayBufferInWindow(win32_offscreen_buffer Buffer, HDC DeviceContext, int
 		DeviceContext,
 		// X, Y, Width, Height,
 		// X, Y, Width, Height,
-		0, 0, Buffer.Width,Buffer.Height, 
 		0, 0, WindowWidth, WindowHeight, 
+		0, 0, Buffer.Width,Buffer.Height, 
 		Buffer.Memory,
 		&Buffer.Info,
 		DIB_RGB_COLORS,
@@ -127,8 +127,7 @@ Win32MainWindowCallback(
 	{
 		case WM_SIZE:
 			{
-				win32_window_dimension Dimension = Win32GetWindowDimension(Window);
-				Win32ResizeDIBSection(&GlobalBackBuffer, Dimension.Width, Dimension.Height);
+
 			} break;
 
 		case WM_CLOSE:
@@ -184,7 +183,8 @@ WinMain(
 {
 
 	WNDCLASS WindowClass = {};
-	
+
+	Win32ResizeDIBSection(&GlobalBackBuffer, 1280, 720);
 
 	// todo => check if hredraw/vredraw still matter
 	WindowClass.style = CS_HREDRAW|CS_VREDRAW;
