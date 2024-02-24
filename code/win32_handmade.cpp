@@ -73,10 +73,10 @@ Win32ResizeDIBSection(int Width, int Height)
 
 
 internal void 
-Win32UpdateWindow(HDC DeviceContext, RECT *ClientRect, int X, int Y, int Width, int Height)
+Win32UpdateWindow(HDC DeviceContext, RECT ClientRect, int X, int Y, int Width, int Height)
 {
-	int WindowWidth = ClientRect->right - ClientRect->left;
-	int WindowHeight = ClientRect->bottom - ClientRect->top;
+	int WindowWidth = ClientRect.right - ClientRect.left;
+	int WindowHeight = ClientRect.bottom - ClientRect.top;
 	StretchDIBits(
 		DeviceContext,
 		// X, Y, Width, Height,
@@ -139,7 +139,7 @@ Win32MainWindowCallback(
 				RECT ClientRect;
 				GetClientRect(Window, &ClientRect);
 
-				Win32UpdateWindow(DeviceContext, &ClientRect, X, Y, Width, Height);
+				Win32UpdateWindow(DeviceContext, ClientRect, X, Y, Width, Height);
 
 				EndPaint(Window, &Paint);
 			} break;
@@ -168,9 +168,9 @@ WinMain(
 	
 
 	// todo => check if hredraw/vredraw still matter
-	WindowClass.style = CS_OWNDC|CS_HREDRAW|CS_VREDRAW;
+	WindowClass.style = CS_HREDRAW|CS_VREDRAW;
 	WindowClass.lpfnWndProc = Win32MainWindowCallback;
-	WindowClass.hInstance = Instance;
+	// WindowClass.hInstance = Instance;
     WindowClass.lpszClassName = "Handmade Hero Window Class";	
 
 
@@ -216,7 +216,7 @@ WinMain(
 				GetClientRect(Window, &ClientRect);
 				int WindowWidth = ClientRect.right - ClientRect.left;
 				int WindowHeight = ClientRect.bottom - ClientRect.top;
-				Win32UpdateWindow(DeviceContext, &ClientRect, 0, 0, WindowWidth, WindowHeight);
+				Win32UpdateWindow(DeviceContext, ClientRect, 0, 0, WindowWidth, WindowHeight);
 				ReleaseDC(Window, DeviceContext);
 
 				++XOffset;
